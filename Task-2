@@ -1,0 +1,58 @@
+from PIL import Image
+
+def encrypt_image(image_path, output_path, operation='add', value=50):
+    img = Image.open(image_path)
+    pixels = img.load()
+    width, height = img.size
+
+    # Create a new image for output
+    encrypted_img = Image.new(img.mode, img.size)
+    encrypted_pixels = encrypted_img.load()
+
+    for y in range(height):
+        for x in range(width):
+            r, g, b = pixels[x, y]
+            if operation == 'add':
+                r = (r + value) % 256
+                g = (g + value) % 256
+                b = (b + value) % 256
+            elif operation == 'swap':
+                r, g, b = b, r, g  # Swaps R->B, G->R, B->G
+            encrypted_pixels[x, y] = (r, g, b)
+
+    encrypted_img.save(output_path)
+    print(f"Image encrypted and saved to {output_path}")
+
+def decrypt_image(image_path, output_path, operation='add', value=50):
+    img = Image.open(image_path)
+    pixels = img.load()
+    width, height = img.size
+
+    decrypted_img = Image.new(img.mode, img.size)
+    decrypted_pixels = decrypted_img.load()
+
+    for y in range(height):
+        for x in range(width):
+            r, g, b = pixels[x, y]
+            if operation == 'add':
+                r = (r - value) % 256
+                g = (g - value) % 256
+                b = (b - value) % 256
+            elif operation == 'swap':
+                r, g, b = g, b, r  # Reverse of swap: B->R, R->G, G->B
+            decrypted_pixels[x, y] = (r, g, b)
+
+    decrypted_img.save(output_path)
+    print(f"Image decrypted and saved to {output_path}")
+
+# Example usage
+if _name_ == "_main_":
+    input_image = "input.jpg"          # Replace with your input image
+    encrypted_image = "encrypted.jpg"
+    decrypted_image = "decrypted.jpg"
+
+    # Encrypt the image
+    encrypt_image(input_image, encrypted_image, operation='add', value=30)
+
+    # Decrypt the image
+    decrypt_image(encrypted_image, decrypted_image, operation='add', value=30)
